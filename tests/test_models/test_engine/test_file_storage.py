@@ -2,6 +2,7 @@
 """ Module for testing file storage"""
 import unittest
 from models.base_model import BaseModel
+from models.state import State
 from models import storage
 import os
 
@@ -105,5 +106,39 @@ class test_fileStorage(unittest.TestCase):
     def test_storage_var_created(self):
         """ FileStorage object storage created """
         from models.engine.file_storage import FileStorage
-        print(type(storage))
         self.assertEqual(type(storage), FileStorage)
+
+    def test_delete_obj(self):
+        ''' delete a specific object '''
+        self.assertDictEqual(storage._FileStorage__objects, {})
+        basemodel = BaseModel()
+        state = State()
+        self.assertEqual(len(storage.all()), 2)
+        self.assertIn(basemodel, storage.all().values())
+        self.assertIn(state, storage.all().values())
+
+        storage.delete(basemodel)
+        self.assertEqual(len(storage.all()), 1)
+        self.assertNotIn(basemodel, storage.all().values())
+        self.assertIn(state, storage.all().values())
+
+        storage.delete(state)
+        self.assertEqual(len(storage.all()), 0)
+        self.assertNotIn(basemodel, storage.all().values())
+        self.assertNotIn(state, storage.all().values())
+
+    def test_all_obj(self):
+        ''' list objects of one type of class '''
+        self.assertDictEqual(storage._FileStorage__objects, {})
+        basemodel = BaseModel()
+        state = State()
+
+        filtered = storage.all(BaseModel)
+        self.assertEqual(len(filtered), 1)
+        self.assertIn(basemodel, filtered.values())
+        self.assertNotIn(state, filtered.values())
+
+        filtered = storage.all(State)
+        self.assertEqual(len(filtered), 1)
+        self.assertIn(state, filtered.values())
+        self.assertNotIn(basemodel, filtered.values())
