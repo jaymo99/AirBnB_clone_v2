@@ -2,6 +2,7 @@
 """ Console Module """
 import cmd
 import sys
+import shlex
 from models.base_model import BaseModel
 from models.__init__ import storage
 from models.user import User
@@ -29,6 +30,52 @@ class HBNBCommand(cmd.Cmd):
              'max_guest': int, 'price_by_night': int,
              'latitude': float, 'longitude': float
             }
+
+    @classmethod
+    def validate_params(cls, params=''):
+        """Validates parameters passed during model/object creation
+
+        Args:
+            params (str): string containing possible parameters
+
+        Returns: a dictionary containing key/value pairs of model attributes
+        """
+        param_list = params.split()
+        attr = {}
+        if not param_list:
+            return attr
+        for param in param_list:
+            key_name, separator, val = param.partition('=')
+            val = HBNBCommand.cast_attribute(val)
+            if (not key_name) or (not val):
+                continue
+            attr[key_name] = val
+        return attr
+
+    @classmethod
+    def cast_attribute(cls, value):
+        '''casts a string value to appropriate data type
+
+        Returns: the casted data type, or None if failed
+        '''
+        if value is None:
+            return None
+
+        if value[0] == '"':
+            tokens = shlex.split(value)
+            value = ' '.join(tokens)
+            return str(value.replace('_', ' '))
+
+        if '.' in value:
+            try:
+                return float(value)
+            except ValueError:
+                return None
+
+        try:
+            return int(value)
+        except ValueError:
+            return None
 
     def preloop(self):
         """Prints if isatty is false"""
@@ -73,7 +120,7 @@ class HBNBCommand(cmd.Cmd):
                 pline = pline[2].strip()  # pline is now str
                 if pline:
                     # check for *args or **kwargs
-                    if pline[0] is '{' and pline[-1] is'}'\
+                    if pline[0] == '{' and pline[-1] == '}'\
                             and type(eval(pline)) is dict:
                         _args = pline
                     else:
@@ -118,10 +165,18 @@ class HBNBCommand(cmd.Cmd):
         if not args:
             print("** class name missing **")
             return
-        elif args not in HBNBCommand.classes:
+
+        cls_name, separator, args = args.partition(' ')
+        if cls_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        new_instance = HBNBCommand.classes[args]()
+        new_instance = HBNBCommand.classes[cls_name]()
+
+        if args:
+            attr_dict = HBNBCommand.validate_params(args)
+            for key, value in attr_dict.items():
+                setattr(new_instance, key, value)
+
         storage.save()
         print(new_instance.id)
         storage.save()
@@ -272,7 +327,7 @@ class HBNBCommand(cmd.Cmd):
                 args.append(v)
         else:  # isolate args
             args = args[2]
-            if args and args[0] is '\"':  # check for quoted arg
+            if args and args[0] == '\"':  # check for quoted arg
                 second_quote = args.find('\"', 1)
                 att_name = args[1:second_quote]
                 args = args[second_quote + 1:]
@@ -280,10 +335,10 @@ class HBNBCommand(cmd.Cmd):
             args = args.partition(' ')
 
             # if att_name was not quoted arg
-            if not att_name and args[0] is not ' ':
+            if not att_name and args[0] != ' ':
                 att_name = args[0]
             # check for quoted val arg
-            if args[2] and args[2][0] is '\"':
+            if args[2] and args[2][0] == '\"':
                 att_val = args[2][1:args[2].find('\"', 1)]
 
             # if att_val was not quoted arg
@@ -319,6 +374,7 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
+
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()
