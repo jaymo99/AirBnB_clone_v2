@@ -170,7 +170,12 @@ class HBNBCommand(cmd.Cmd):
         if cls_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
+
         new_instance = HBNBCommand.classes[cls_name]()
+        if args:
+            attr_dict = HBNBCommand.validate_params(args)
+            for key, value in attr_dict.items():
+                setattr(new_instance, key, value)
 
         new_instance.save()
         print(new_instance.id)
@@ -255,8 +260,8 @@ class HBNBCommand(cmd.Cmd):
             return
 
         args = args.split()
-        if args[0] not in HBNBCommand.__classes:
-            print(HBNBCommand.__err_msgs["cls_unexist"])
+        if args[0] not in HBNBCommand.classes:
+            print("** class doesn't exist **")
         else:
             cls = args[0]
             print([str(obj) for obj in all_objs.values()
