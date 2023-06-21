@@ -265,7 +265,7 @@ class HBNBCommand(cmd.Cmd):
         else:
             cls = args[0]
             print([str(obj) for obj in all_objs.values()
-                   if obj.__class__.__name__ == cls]) 
+                   if obj.__class__.__name__ == cls])
 
     def help_all(self):
         """ Help information for the all command """
