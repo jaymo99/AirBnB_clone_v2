@@ -172,12 +172,7 @@ class HBNBCommand(cmd.Cmd):
             return
         new_instance = HBNBCommand.classes[cls_name]()
 
-        if args:
-            attr_dict = HBNBCommand.validate_params(args)
-            for key, value in attr_dict.items():
-                setattr(new_instance, key, value)
-
-        storage.save()
+        new_instance.save()
         print(new_instance.id)
         storage.save()
 
