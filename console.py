@@ -47,7 +47,7 @@ class HBNBCommand(cmd.Cmd):
         for param in param_list:
             key_name, separator, val = param.partition('=')
             val = HBNBCommand.cast_attribute(val)
-            if (not key_name) or (not val):
+            if (not key_name) or (val is None):
                 continue
             attr[key_name] = val
         return attr
