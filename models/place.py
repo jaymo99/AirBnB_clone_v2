@@ -8,24 +8,24 @@ from sqlalchemy.orm import relationship
 import models
 from models.base_model import BaseModel, Base
 
-place_amenity = Table(
-    'place_amenity',
-    Base.metadata,
-    Column(
-        'place_id',
-        String(60),
-        ForeignKey('places.id'),
-        primary_key=True,
-        nullable=False,
-    ),
-    Column(
-        'amenity_id',
-        ForeignKey('amenities.id'),
-        primary_key=True,
-        nullable=False,
-    ),
-    mysql_charset="latin1",
-)
+#place_amenity = Table(
+#    'place_amenity',
+#    Base.metadata,
+#    Column(
+#        'place_id',
+#        String(60),
+#        ForeignKey('places.id'),
+#        primary_key=True,
+#        nullable=False,
+#    ),
+#    Column(
+#        'amenity_id',
+#        ForeignKey('amenities.id'),
+#        primary_key=True,
+#        nullable=False,
+#    ),
+#    mysql_charset="latin1",
+#)
 
 
 class Place(BaseModel, Base):
@@ -51,13 +51,13 @@ class Place(BaseModel, Base):
                 backref="place"
                 )
 
-        amenities = relationship(
-                "Amenity",
-                secondary=place_amenity,
-                viewonly=False,
-                cascade="all, delete, delete-orphan",
-                backref="place_amenities"
-                )
+        #amenities = relationship(
+        #        "Amenity",
+        #        secondary=place_amenity,
+        #        viewonly=False,
+        #        cascade="all, delete, delete-orphan",
+        #        backref="place_amenities"
+        #        )
     else:
         @property
         def reviews(self):
