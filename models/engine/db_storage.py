@@ -15,7 +15,6 @@ from models.place import Place
 from models.review import Review
 from models.state import State
 from models.user import User
-from models.user import User
 
 
 class DBStorage:
@@ -79,4 +78,3 @@ class DBStorage:
         session_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
         ScopedSession = scoped_session(session_factory)
         self.__session = ScopedSession()
-        
