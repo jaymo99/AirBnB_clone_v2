@@ -25,11 +25,23 @@ fi
 ln -s /data/web_static/releases/test/ /data/web_static/current
 
 sudo chown -R ubuntu:ubuntu /data/
-hbnb_static="
-	location \/hbnb_static {
-		alias \/data\/web_static\/current\/;
-	}
-"
-sudo sed -i "/server_name _/ a ${hbnb_static}" /etc/nginx/sites-available/default
-sudo sed -i "/server_name jmkariuki.tech/ a ${hbnb_static}" /etc/nginx/sites-available/default
+
+# Create or restore backup for sites-availabe/default
+if [ -f /etc/nginx/sites-available/default.orig ]; then
+	mv /etc/nginx/sites-available/default.orig /etc/nginx/sites-available/default
+else
+	sudo cp /etc/nginx/sites-available/default{,.orig}
+fi
+
+# Add location block
+sudo sed -i "/server_name _/ a \\
+	location \/hbnb_static {\\
+		alias \/data\/web_static\/current\/;\\
+	}" /etc/nginx/sites-available/default
+
+sudo sed -i "/server_name jmkariuki.tech/ a \\
+	location \/hbnb_static {\\
+		alias \/data\/web_static\/current\/;\\
+	}" /etc/nginx/sites-available/default
+
 sudo service nginx restart
