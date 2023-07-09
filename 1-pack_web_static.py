@@ -1,9 +1,8 @@
 #!/usr/bin/python3
 '''Module uses Fabric for web_static compression
 '''
-
 from datetime import datetime
-from fabric.api import *
+from fabric.api import local
 
 
 def do_pack():
