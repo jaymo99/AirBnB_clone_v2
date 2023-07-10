@@ -1,42 +1,45 @@
 #!/usr/bin/python3
-"""2-do_deploy_web_static module
+'''Module uses Fabric for web_static deployment
+'''
 
-A Fabric script that deploys an archive to a web server
-"""
-from os import path
+import os
 
-from fabric.api import env, put, run
+from datetime import datetime
+from fabric.api import *
 
-env.hosts = ["100.26.213.68", "35.175.63.17"]
+env.user = 'ubuntu'
+env.hosts = ['100.26.213.68', '35.175.63.17']
 
 
 def do_deploy(archive_path):
-    """deploys a web_static archive to a web server
+    '''Distributes an archive to web servers
+    '''
+    if not os.path.exists(archive_path):
+        return False
 
-    Args:
-        archive_path (str): the path of the archive
-
-    Returns:
-        bool: True if success else False
-    """
     try:
-        archive_name_w_ext = path.basename(archive_path)
-        archive_name = archive_name_w_ext.split(".")[0]
+        # Upload archive to /tmp/ of web server
+        put(archive_path, '/tmp/')
 
-        rel_path = "/data/web_static/releases/{}/".format(archive_name)
-        tmp_path = "/tmp/{}".format(archive_name_w_ext)
+        # Uncompress the archive
+        file_name = os.path.basename(archive_path)
+        dir_name, extension = os.path.splitext(file_name)
+        run("mkdir -p /data/web_static/releases/{}".format(dir_name))
+        run("tar -xzf /tmp/{} -C /data/web_static/releases/{}"
+            .format(file_name, dir_name))
 
-        put(archive_path, "/tmp/")
-        run("mkdir -p {}".format(rel_path))
-        run("tar -xzf {} -C {}".format(tmp_path, rel_path))
-        run("rm {}".format(tmp_path))
-        run("mv {}web_static/* {}".format(rel_path, rel_path))
-        run("rm -rf {}web_static/".format(rel_path))
+        # Delete the archive from the web server
+        release = "/data/web_static/releases/{}".format(dir_name)
+        run("rm /tmp/{}".format(file_name))
+        run("mv {}/web_static/* {}/".format(release, release))
+        run("rm -rf {}/web_static".format(release))
 
-        link = "/data/web_static/current"
-        run("rm -rf {}".format(link))
-        run("ln -s {} {}".format(rel_path, link))
-        print("New version deployed!")
-        return True
+        # Recreate symlink linked to the new version of the code
+        run("rm -rf /data/web_static/current")
+        run("ln -s /data/web_static/releases/{}/ /data/web_static/current"
+            .format(dir_name))
     except Exception:
         return False
+
+    print("New version deployed!")
+    return True
