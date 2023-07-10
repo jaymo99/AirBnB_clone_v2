@@ -1,41 +1,41 @@
 #!/usr/bin/python3
-"""
-    This script distributes an archive to your web servers,
-    using the function do_deploy:
-"""
-from fabric.api import *
-import os
-import re
+"""2-do_deploy_web_static module
 
+A Fabric script that deploys an archive to a web server
+"""
+from os import path
 
-env.user = 'ubuntu'
-env.hosts = ['34.239.163.194', '3.85.222.35']
+from fabric.api import env, put, run
+
+env.hosts = ["100.26.213.68", "35.175.63.17"]
 
 
 def do_deploy(archive_path):
-    """
-        Deploys archive path to remote hosts
-    """
-    if not os.path.exists(archive_path):
-        return False
+    """deploys a web_static archive to a web server
 
+    Args:
+        archive_path (str): the path of the archive
+
+    Returns:
+        bool: True if success else False
+    """
     try:
+        archive_name_w_ext = path.basename(archive_path)
+        archive_name = archive_name_w_ext.split(".")[0]
+
+        rel_path = "/data/web_static/releases/{}/".format(archive_name)
+        tmp_path = "/tmp/{}".format(archive_name_w_ext)
+
         put(archive_path, "/tmp/")
-        regex = r'\/(\w+).tgz$'
-        pattern = re.findall(regex, archive_path)
+        run("mkdir -p {}".format(rel_path))
+        run("tar -xzf {} -C {}".format(tmp_path, rel_path))
+        run("rm {}".format(tmp_path))
+        run("mv {}web_static/* {}".format(rel_path, rel_path))
+        run("rm -rf {}web_static/".format(rel_path))
 
-        web_path = "/data/web_static/releases/{}".format(pattern[0])
-
-        run("mkdir -p {}".format(web_path))
-        # unpacking
-        run("tar -xzf /tmp/{}.tgz -C {}".format(pattern[0], web_path))
-        run("mv {}/web_static/* {}".format(web_path, web_path))
-        run("rm -rf {}/web_static".format(web_path))
-        run("rm /tmp/{}.tgz".format(pattern[0]))
-        run("rm -rf /data/web_static/current")
-        run("ln -s {} /data/web_static/current".format(web_path))
-
-        # success
+        link = "/data/web_static/current"
+        run("rm -rf {}".format(link))
+        run("ln -s {} {}".format(rel_path, link))
         print("New version deployed!")
         return True
     except Exception:
