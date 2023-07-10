@@ -40,3 +40,4 @@ def do_deploy(archive_path):
             .format(dir_name))
     except Exception:
         return False
+    return True
