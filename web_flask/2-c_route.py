@@ -3,6 +3,7 @@
 Starts a Flask web application
 """
 from flask import Flask
+from markupsafe import escape
 
 app = Flask(__name__)
 
@@ -19,6 +20,15 @@ def hbnb_route():
     '''hbnb route
     '''
     return 'HBNB'
+
+
+@app.route('/c/<text>', strict_slashes=False)
+def c_route(text):
+    '''c route
+    Displays "C " followed by the value of the 'text' variable
+    '''
+    text = escape(text).replace('_', ' ')
+    return f'C {text}'
 
 
 if __name__ == '__main__':
