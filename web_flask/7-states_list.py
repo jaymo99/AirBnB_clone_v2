@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 
 @app.teardown_appcontext
-def clean_up():
+def clean_up(self):
     '''
     Cleans-up app resources after request
     '''
