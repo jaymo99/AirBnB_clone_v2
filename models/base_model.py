@@ -31,6 +31,8 @@ class BaseModel:
             for key, value in kwargs.items():
                 if key != "__class__":
                     setattr(self, key, value)
+            if not getattr(self, "id", None):
+                self.id = str(uuid.uuid4())
             if getattr(self, "created_at", None)\
                     and isinstance(self.created_at, str):
                 self.created_at = datetime.strptime(self.created_at,
