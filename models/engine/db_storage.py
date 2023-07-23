@@ -25,10 +25,10 @@ class DBStorage:
     classes = {
             'State': State,
             'City': City
-            #'Place': Place,
-            #'Review': Review,
-            #'Amenity': Amenity,
-            #'User': User
+            # 'Place': Place,
+            # 'Review': Review,
+            # 'Amenity': Amenity,
+            # 'User': User
             }
 
     def __init__(self):
@@ -56,7 +56,7 @@ class DBStorage:
                 for obj in objs:
                     key = obj.__class__.__name__ + '.' + obj.id
                     new_dict[key] = obj
-        return (new_dict) 
+        return (new_dict)
 
     def new(self, obj):
         '''add an object to the current db session.'''
@@ -75,7 +75,8 @@ class DBStorage:
     def reload(self):
         '''creates db tables and current db session.'''
         Base.metadata.create_all(self.__engine)
-        session_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
+        session_factory = sessionmaker(bind=self.__engine,
+                                       expire_on_commit=False)
         ScopedSession = scoped_session(session_factory)
         self.__session = ScopedSession()
 
