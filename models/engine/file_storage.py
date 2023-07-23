@@ -69,3 +69,7 @@ class FileStorage:
                 del FileStorage.__objects[key]
                 break
 
+    def close(self):
+        '''Releads objects from file storage
+        '''
+        self.reload()
