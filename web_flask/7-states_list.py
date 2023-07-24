@@ -16,7 +16,6 @@ def clean_up(self):
     '''
     Cleans-up app resources after request
     '''
-    print("Cleaning up after request...")
     storage.close()
 
 
@@ -25,7 +24,7 @@ def states_list():
     '''
     Renders a html page with a list of states
     '''
-    states = list(storage.all().values())
+    states = list(storage.all(State).values())
     return render_template('7-states_list.html', states=states)
 
 

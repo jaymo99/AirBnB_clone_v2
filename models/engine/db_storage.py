@@ -50,12 +50,12 @@ class DBStorage:
     def all(self, cls=None):
         '''Query the db all objects depending on the class name.'''
         new_dict = {}
-        for clss in self.classes:
-            if cls is None or cls is self.classes[clss] or cls is clss:
-                objs = self.__session.query(self.classes[clss]).all()
-                for obj in objs:
-                    key = obj.__class__.__name__ + '.' + obj.id
-                    new_dict[key] = obj
+        classes = [cls] if cls is not None else self.classes.values()
+        for _cls in classes:
+            objs = self.__session.query(_cls).all()
+            for obj in objs:
+                key = obj.__class__.__name__ + '.' + obj.id
+                new_dict[key] = obj
         return (new_dict)
 
     def new(self, obj):
